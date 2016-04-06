@@ -46,10 +46,10 @@ public class BasketBallTest {
 
     @Test
     public void putBall() throws UiObjectNotFoundException, InterruptedException {
-//        swipeToBasket(0, 0);
-//        swipeToBasket(3.5 * TIME, 0);
-//        swipeToBasket(7 * TIME, 0);
-//        swipeToBasket(7 * TIME, 2 * TIME);
+        swipeToBasket(0, 0);
+        swipeToBasket(3.5 * TIME, 0);
+        swipeToBasket(7 * TIME, 0);
+        swipeToBasket(7 * TIME, 2 * TIME);
 
         swipeToBasket2(7 * TIME, 4 * TIME);
     }

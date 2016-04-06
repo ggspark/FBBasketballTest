@@ -32,6 +32,7 @@ public class BasketBallTest {
     private UiObject ball;
     private UiObject basket;
     private static final int BASKET_WINDOW = 20;
+    private static final int MARGIN_WINDOW = 70;
 
     @Before
     public void startMainActivityFromHomeScreen() throws UiObjectNotFoundException {
@@ -45,12 +46,12 @@ public class BasketBallTest {
 
     @Test
     public void putBall() throws UiObjectNotFoundException, InterruptedException {
-        swipeToBasket(0, 0);
-        swipeToBasket(3.5 * TIME, 0);
-        swipeToBasket(7 * TIME, 0);
-        swipeToBasket(7 * TIME, 2 * TIME);
+//        swipeToBasket(0, 0);
+//        swipeToBasket(3.5 * TIME, 0);
+//        swipeToBasket(7 * TIME, 0);
+//        swipeToBasket(7 * TIME, 2 * TIME);
 
-        swipeToBasket(7 * TIME, 4 * TIME);
+        swipeToBasket2(7 * TIME, 4 * TIME);
     }
 
     private void swipeToBasket(double speedX, double speedY) throws UiObjectNotFoundException, InterruptedException {
@@ -59,7 +60,7 @@ public class BasketBallTest {
 
             Rect dstRect1 = basket.getVisibleBounds();
             Rect dstRect2 = basket.getVisibleBounds();
-            while (notInWindow(initialCenterX, initialCenterY, dstRect2)) {
+            while (notInWindow(dstRect2)) {
                 dstRect1 = new Rect(dstRect2);
                 dstRect2 = basket.getVisibleBounds();
             }
@@ -74,8 +75,40 @@ public class BasketBallTest {
         }
     }
 
-    private boolean notInWindow(int centerX, int centerY, Rect dstRect2) {
-        return !(dstRect2.centerX() > (centerX - BASKET_WINDOW) && dstRect2.centerX() < (centerX + BASKET_WINDOW) && dstRect2.centerY() > (centerY - BASKET_WINDOW) && dstRect2.centerY() < (centerY + BASKET_WINDOW));
+    private boolean notInWindow(Rect dstRect2) {
+        return !(dstRect2.centerX() > (initialCenterX - BASKET_WINDOW) && dstRect2.centerX() < (initialCenterX + BASKET_WINDOW) && dstRect2.centerY() > (initialCenterY - BASKET_WINDOW) && dstRect2.centerY() < (initialCenterY + BASKET_WINDOW));
+    }
+
+
+    private void swipeToBasket2(double speedX, double speedY) throws UiObjectNotFoundException, InterruptedException {
+        for (int i = 0; i < 10; i++) {
+            Rect srcRect = ball.getVisibleBounds();
+
+            Rect dstRect1 = basket.getVisibleBounds();
+            Rect dstRect2 = basket.getVisibleBounds();
+            int diffX = (dstRect2.centerX() - dstRect1.centerX());
+            int diffY = (dstRect2.centerY() - dstRect1.centerY());
+
+            while (notInWindow(dstRect2, diffX, diffY)) {
+                dstRect1 = new Rect(dstRect2);
+                dstRect2 = basket.getVisibleBounds();
+                diffX = (dstRect2.centerX() - dstRect1.centerX());
+                diffY = (dstRect2.centerY() - dstRect1.centerY());
+            }
+
+
+            diffX = (dstRect2.centerX() - dstRect1.centerX());
+            diffY = (dstRect2.centerY() - dstRect1.centerY());
+            int offsetX = (int) (Math.signum(diffX) * speedX);
+            int offsetY = (int) (Math.signum(diffY) * speedY);
+            mDevice.swipe(srcRect.centerX(), srcRect.centerY(), dstRect2.centerX() + offsetX, dstRect2.centerY() + offsetY, 4);
+            Log.w("BasketBallTest", "DiffX: " + diffX + " DiffY: " + diffY + " OffsetX: " + offsetX + " OffsetY: " + offsetY);
+            sleep(4000);
+        }
+    }
+
+    private boolean notInWindow(Rect dstRect2, int diffX, int diffY) {
+        return !(dstRect2.centerX() < (initialCenterX - MARGIN_WINDOW) && diffX > 0 && dstRect2.centerY() < (initialCenterY - MARGIN_WINDOW) && diffY > 0);
     }
 
 

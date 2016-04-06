@@ -8,6 +8,7 @@ import android.support.test.uiautomator.UiDevice;
 import android.support.test.uiautomator.UiObject;
 import android.support.test.uiautomator.UiObjectNotFoundException;
 import android.support.test.uiautomator.UiSelector;
+import android.util.Log;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -24,12 +25,13 @@ import static java.lang.Thread.sleep;
 @SdkSuppress(minSdkVersion = 18)
 public class BasketBallTest {
 
+    public static final double TIME = 40;
     private UiDevice mDevice;
     private int initialCenterX;
     private int initialCenterY;
     private UiObject ball;
     private UiObject basket;
-    private static final int BASKET_WINDOW = 25;
+    private static final int BASKET_WINDOW = 20;
 
     @Before
     public void startMainActivityFromHomeScreen() throws UiObjectNotFoundException {
@@ -43,28 +45,31 @@ public class BasketBallTest {
 
     @Test
     public void putBall() throws UiObjectNotFoundException, InterruptedException {
-
         swipeToBasket(0, 0);
-        swipeToBasket(110, 0);
-        swipeToBasket(110 * 2, 0);
+        swipeToBasket(3.5 * TIME, 0);
+        swipeToBasket(7 * TIME, 0);
+        swipeToBasket(7 * TIME, 2 * TIME);
 
-        swipeToBasket(110 * 2, 110);
+        swipeToBasket(7 * TIME, 4 * TIME);
     }
 
-    private void swipeToBasket(int speedX, int speedY) throws UiObjectNotFoundException, InterruptedException {
+    private void swipeToBasket(double speedX, double speedY) throws UiObjectNotFoundException, InterruptedException {
         for (int i = 0; i < 10; i++) {
             Rect srcRect = ball.getVisibleBounds();
 
-            Rect dstRect = basket.getVisibleBounds();
+            Rect dstRect1 = basket.getVisibleBounds();
             Rect dstRect2 = basket.getVisibleBounds();
             while (notInWindow(initialCenterX, initialCenterY, dstRect2)) {
-                dstRect = dstRect2;
+                dstRect1 = new Rect(dstRect2);
                 dstRect2 = basket.getVisibleBounds();
             }
 
-            int diffX = (dstRect2.centerX() - dstRect.centerX());
-            int diffY = (dstRect2.centerY() - dstRect.centerY());
-            mDevice.swipe(srcRect.centerX(), srcRect.centerY(), dstRect2.centerX() + ((int) Math.signum(diffX) * speedX), dstRect2.centerY() + ((int) Math.signum(diffY) * speedY), 5);
+            int diffX = (dstRect2.centerX() - dstRect1.centerX());
+            int diffY = (dstRect2.centerY() - dstRect1.centerY());
+            int offsetX = (int) (Math.signum(diffX) * speedX);
+            int offsetY = (int) (Math.signum(diffY) * speedY);
+            mDevice.swipe(srcRect.centerX(), srcRect.centerY(), dstRect2.centerX() + offsetX, dstRect2.centerY() + offsetY, 4);
+            Log.w("BasketBallTest", "DiffX: " + diffX + " DiffY: " + diffY + " OffsetX: " + offsetX + " OffsetY: " + offsetY);
             sleep(4000);
         }
     }
